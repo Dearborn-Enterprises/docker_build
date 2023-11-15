@@ -33,6 +33,10 @@ inputs:
     default: ${{ github.ref_name == 'main' && 'latest' || github.ref_name }}
     required: false
     description: tag for docker image
+  build-path:
+    default: .
+    required: false
+    description: relative path do docker file
 outputs:
   image:
     description: vuilt image
@@ -56,11 +60,6 @@ runs:
       uses: aws-actions/amazon-ecr-login@v1
       with:
         mask-password: true
-
-    - name: checkout
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 1
     
     - name: build docker images
       id: docker-build
@@ -68,7 +67,7 @@ runs:
         docker build --no-cache \
         --build-arg DOCKER_REGISTRY=${{ steps.login-ecr.outputs.registry }} \
         --tag ${{ inputs.registry-alias }}/${{ inputs.repository }}:${{ inputs.build-tag }} \
-        .
+        ${{ inputs.build-path }}
         echo "image=${{ inputs.registry-alias }}/${{ inputs.repository }}:${{ inputs.build-tag }}" >> $GITHUB_OUTPUT
       shell: bash
 
