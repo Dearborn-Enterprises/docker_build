@@ -37,6 +37,10 @@ inputs:
     default: .
     required: false
     description: relative path do docker file
+  docker-registry:
+    default: ""
+    required: false
+    description: "default docker registry. if `docker-registry: ECR` - registry will be get from ECR "
 outputs:
   image:
     description: vuilt image
@@ -47,6 +51,7 @@ runs:
   steps:
 
     - name: Configure AWS Credentials
+      if: inputs.docker-registry == 'ECR'
       uses: aws-actions/configure-aws-credentials@v4
       with:
         role-to-assume: ${{ inputs.role-arn }}
@@ -56,6 +61,7 @@ runs:
         role-duration-seconds: ${{ inputs.role-duration-seconds }}
 
     - name: Login to Amazon ECR
+      if: inputs.docker-registry == 'ECR'
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
       with:
@@ -65,7 +71,7 @@ runs:
       id: docker-build
       run: |
         docker build --no-cache \
-        --build-arg DOCKER_REGISTRY=${{ steps.login-ecr.outputs.registry }} \
+        --build-arg DOCKER_REGISTRY="$( [ ${{inputs.docker-registry }} = 'ECR'] && echo ${{ steps.login-ecr.outputs.registry }} || echo ${{inputs.docker-registry }} )" \
         --tag ${{ inputs.registry-alias }}/${{ inputs.repository }}:${{ inputs.build-tag }} \
         ${{ inputs.build-path }}
         echo "image=${{ inputs.registry-alias }}/${{ inputs.repository }}:${{ inputs.build-tag }}" >> $GITHUB_OUTPUT
