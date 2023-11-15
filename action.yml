@@ -72,7 +72,7 @@ runs:
       id: docker-build
       run: |
         docker build --no-cache \
-        --build-arg DOCKER_REGISTRY="$( [ '${{inputs.docker-registry }}' = 'ECR'] && echo ${{ steps.login-ecr.outputs.registry }} || echo ${{inputs.docker-registry }} )" \
+        --build-arg DOCKER_REGISTRY="$( [ '${{inputs.docker-registry }}' = 'ECR' ] && echo ${{ steps.login-ecr.outputs.registry }} || echo ${{inputs.docker-registry }} )" \
         --tag ${{ inputs.registry-alias }}/${{ inputs.repository }}:${{ inputs.build-tag }} \
         ${{ inputs.build-path }}
         echo "image=${{ inputs.registry-alias }}/${{ inputs.repository }}:${{ inputs.build-tag }}" >> $GITHUB_OUTPUT
