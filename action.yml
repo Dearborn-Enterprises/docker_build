@@ -48,6 +48,7 @@ outputs:
 
 runs:
   using: composite
+    
   steps:
 
     - name: Configure AWS Credentials
@@ -60,10 +61,6 @@ runs:
         role-skip-session-tagging: ${{ inputs.role-skip-session-tagging }}
         role-duration-seconds: ${{ inputs.role-duration-seconds }}
 
-    - name: debug
-      run: aws sts get-caller-identity
-      shell: bash
-
     - name: Login to Amazon ECR
       if: inputs.docker-registry == 'ECR'
       id: login-ecr
@@ -75,7 +72,7 @@ runs:
       id: docker-build
       run: |
         docker build --no-cache \
-        --build-arg DOCKER_REGISTRY="$( [ ${{inputs.docker-registry }} = 'ECR'] && echo ${{ steps.login-ecr.outputs.registry }} || echo ${{inputs.docker-registry }} )" \
+        --build-arg DOCKER_REGISTRY="$( [ '${{inputs.docker-registry }}' = 'ECR'] && echo ${{ steps.login-ecr.outputs.registry }} || echo ${{inputs.docker-registry }} )" \
         --tag ${{ inputs.registry-alias }}/${{ inputs.repository }}:${{ inputs.build-tag }} \
         ${{ inputs.build-path }}
         echo "image=${{ inputs.registry-alias }}/${{ inputs.repository }}:${{ inputs.build-tag }}" >> $GITHUB_OUTPUT
