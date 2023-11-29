@@ -37,14 +37,18 @@ inputs:
     default: .
     required: false
     description: relative path do docker file
+  build-extra-parameters:
+    default: ""
+    required: false
+    description: additional parameters for docker build
   docker-registry:
     default: ""
     required: false
     description: "default docker registry. if `docker-registry: ECR` - registry will be get from ECR "
 outputs:
-  image:
+  image-name:
     description: vuilt image
-    value: ${{ steps.docker-build.outputs.image }}
+    value: ${{ steps.docker-build.outputs.image_name }}
 
 runs:
   using: composite
@@ -52,11 +56,13 @@ runs:
   steps:
     - name: prepare credentials
       shell: bash
+      env:
+        DOCKER_CONFIG: /home/runner/.docker
       run: |
-        set -e
-        DOCKER_CONFIG=/home/runner/.docker
-        [ -d $DOCKER_CONFIG ] || mkdir --parents $DOCKER_CONFIG
-        [ ! -L $DOCKER_CONFIG/config.json -a -r /registry-credentials/.dockerconfigjson ] && cp /registry-credentials/.dockerconfigjson $DOCKER_CONFIG/config.json
+        if [ ! -d $DOCKER_CONFIG ] ; then  mkdir --parents $DOCKER_CONFIG ; fi
+        if [ ! -r $DOCKER_CONFIG/config.json -a -r /registry-credentials/.dockerconfigjson ] ; then
+          cp /registry-credentials/.dockerconfigjson $DOCKER_CONFIG/config.json
+        fi
 
     - name: Configure AWS Credentials
       if: inputs.docker-registry == 'ECR'
@@ -82,8 +88,9 @@ runs:
       run: |
         docker build --no-cache \
         --build-arg DOCKER_REGISTRY="${DOCKER_REGISTRY}" \
+        ${{ inputs.build-extra-parameters }} \
         --tag ${{ inputs.registry-alias }}/${{ inputs.repository }}:${{ inputs.build-tag }} \
         ${{ inputs.build-path }}
-        echo "image=${{ inputs.registry-alias }}/${{ inputs.repository }}:${{ inputs.build-tag }}" >> $GITHUB_OUTPUT
+        echo "image_name=${{ inputs.registry-alias }}/${{ inputs.repository }}:${{ inputs.build-tag }}" >> $GITHUB_OUTPUT
       shell: bash
 
