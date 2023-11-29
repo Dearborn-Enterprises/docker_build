@@ -50,10 +50,14 @@ runs:
   using: composite
 
   steps:
-
-    - name: sleep
-      run: sleep 3600 || true
+    - name: prepare credentials
       shell: bash
+      run: |
+        set -e
+        DOCKER_CONFIG=/home/runner/.docker
+        [ -d $DOCKER_CONFIG ] || mkdir --parents $DOCKER_CONFIG
+        [ ! -L $DOCKER_CONFIG/config.json -a -r /registry-credentials/.dockerconfigjson ] && cp /registry-credentials/.dockerconfigjson $DOCKER_CONFIG/config.json
+
     - name: Configure AWS Credentials
       if: inputs.docker-registry == 'ECR'
       uses: aws-actions/configure-aws-credentials@v4
