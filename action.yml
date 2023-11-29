@@ -67,9 +67,6 @@ runs:
         aws-region: ${{ inputs.aws-region }}
         role-skip-session-tagging: ${{ inputs.role-skip-session-tagging }}
         role-duration-seconds: ${{ inputs.role-duration-seconds }}
-    - name: sleep
-      run: sleep 3600 || true
-      shell: bash
 
     - name: Login to Amazon ECR
       if: inputs.docker-registry == 'ECR'
