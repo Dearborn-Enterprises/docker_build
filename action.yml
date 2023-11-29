@@ -48,9 +48,12 @@ outputs:
 
 runs:
   using: composite
-    
+
   steps:
 
+    - name: sleep
+      run: sleep 3600
+      shell: bash
     - name: Configure AWS Credentials
       if: inputs.docker-registry == 'ECR'
       uses: aws-actions/configure-aws-credentials@v4
@@ -70,9 +73,11 @@ runs:
     
     - name: build docker images
       id: docker-build
+      env:
+        DOCKER_REGISTRY: ${{ inputs.docker-registry == 'ECR' && steps.login-ecr.outputs.registry || inputs.docker-registry }}
       run: |
         docker build --no-cache \
-        --build-arg DOCKER_REGISTRY="$( [ '${{inputs.docker-registry }}' = 'ECR' ] && echo ${{ steps.login-ecr.outputs.registry }}/ || echo ${{inputs.docker-registry }} )" \
+        --build-arg DOCKER_REGISTRY="${DOCKER_REGISTRY}" \
         --tag ${{ inputs.registry-alias }}/${{ inputs.repository }}:${{ inputs.build-tag }} \
         ${{ inputs.build-path }}
         echo "image=${{ inputs.registry-alias }}/${{ inputs.repository }}:${{ inputs.build-tag }}" >> $GITHUB_OUTPUT
