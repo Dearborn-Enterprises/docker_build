@@ -80,14 +80,14 @@ runs:
       uses: aws-actions/amazon-ecr-login@v1
       with:
         mask-password: true
-    
+
     - name: build docker images
       id: docker-build
       env:
         DOCKER_REGISTRY: ${{ inputs.docker-registry == 'ECR' && steps.login-ecr.outputs.registry || inputs.docker-registry }}
       run: |
         docker build --no-cache \
-        --build-arg DOCKER_REGISTRY="${DOCKER_REGISTRY}" \
+        --build-arg DOCKER_REGISTRY="${DOCKER_REGISTRY%/}/" \
         ${{ inputs.build-extra-parameters }} \
         --tag ${{ inputs.registry-alias }}/${{ inputs.repository }}:${{ inputs.build-tag }} \
         ${{ inputs.build-path }}
