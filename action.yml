@@ -81,19 +81,24 @@ runs:
       with:
         mask-password: true
 
-    - name: build docker images
-      id: docker-build
+    - name: set env values
       env:
         DOCKER_REGISTRY: ${{ inputs.docker-registry == 'ECR' && steps.login-ecr.outputs.registry || inputs.docker-registry }}
+      shell: bash
       run: |
         if [  -n "${DOCKER_REGISTRY}" ] ; then
           DOCKER_REGISTRY="${DOCKER_REGISTRY%/}/"
         fi
+        echo "DOCKER_REGISTRY='${DOCKER_REGISTRY%/}'" >> $GITHUB_ENV
+
+    - name: build docker images
+      id: docker-build
+      shell: bash
+      run: |
         docker build --no-cache \
-        --build-arg "${DOCKER_REGISTRY}" \
+        --build-arg "DOCKER_REGISTRY=${DOCKER_REGISTRY}" \
         ${{ inputs.build-extra-parameters }} \
         --tag ${{ inputs.registry-alias }}/${{ inputs.repository }}:${{ inputs.build-tag }} \
         ${{ inputs.build-path }}
         echo "image_name=${{ inputs.registry-alias }}/${{ inputs.repository }}:${{ inputs.build-tag }}" >> $GITHUB_OUTPUT
-      shell: bash
 
