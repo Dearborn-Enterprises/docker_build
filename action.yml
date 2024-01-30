@@ -45,6 +45,10 @@ inputs:
     default: ""
     required: false
     description: "default docker registry. if `docker-registry: ECR` - registry will be get from ECR "
+  gh-token:
+    default: ""
+    required: false
+    description: github toket to break unauthenticated limits
 outputs:
   image-name:
     description: vuilt image
@@ -94,7 +98,10 @@ runs:
     - name: build docker images
       id: docker-build
       shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.gh-token }}
       run: |
+        set -ex
         docker build --no-cache \
         --build-arg "DOCKER_REGISTRY=${DOCKER_REGISTRY}" \
         ${{ inputs.build-extra-parameters }} \
