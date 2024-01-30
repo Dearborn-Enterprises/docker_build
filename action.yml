@@ -100,7 +100,7 @@ runs:
       run: |
         set -ex
         BUILD_TAG=${{ inputs.build-tag }}
-        BUILD_TAG=${RAW_BUILD_TAG%%/*}
+        BUILD_TAG=${BUILD_TAG%%/*}
         docker build --no-cache \
         --build-arg "DOCKER_REGISTRY=${DOCKER_REGISTRY}" \
         ${{ inputs.build-extra-parameters }} \
