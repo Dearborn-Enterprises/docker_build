@@ -98,12 +98,11 @@ runs:
     - name: build docker images
       id: docker-build
       shell: bash
-      env:
-        GH_TOKEN: ${{ inputs.gh-token }}
       run: |
         set -ex
         docker build --no-cache \
         --build-arg "DOCKER_REGISTRY=${DOCKER_REGISTRY}" \
+        --build-arg "GH_TOKEN=${{ inputs.gh-token }}" \
         ${{ inputs.build-extra-parameters }} \
         --tag ${{ inputs.registry-alias }}/${{ inputs.repository }}:${{ inputs.build-tag }} \
         ${{ inputs.build-path }}
