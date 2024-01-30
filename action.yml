@@ -97,6 +97,8 @@ runs:
 
     - name: build docker images
       id: docker-build
+      env:
+        DOCKER_BUILDKIT: 1
       shell: bash
       run: |
         set -ex
