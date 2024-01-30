@@ -101,7 +101,7 @@ runs:
         set -ex
         BUILD_TAG=${{ inputs.build-tag }}
         BUILD_TAG=${BUILD_TAG%%/*}
-        apt install docker-buildx -q
+        sudo apt install docker-buildx -q
         docker build --no-cache \
         --build-arg "DOCKER_REGISTRY=${DOCKER_REGISTRY}" \
         ${{ inputs.build-extra-parameters }} \
