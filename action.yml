@@ -99,10 +99,12 @@ runs:
       shell: bash
       run: |
         set -ex
+        BUILD_TAG=${{ inputs.build-tag }}
+        BUILD_TAG=${RAW_BUILD_TAG%%/*}
         docker build --no-cache \
         --build-arg "DOCKER_REGISTRY=${DOCKER_REGISTRY}" \
         ${{ inputs.build-extra-parameters }} \
-        --tag ${{ inputs.registry-alias }}/${{ inputs.repository }}:${{ inputs.build-tag }} \
+        --tag "${{ inputs.registry-alias }}/${{ inputs.repository }}:${BUILD_TAG}" \
         ${{ inputs.build-path }}
-        echo "image_name=${{ inputs.registry-alias }}/${{ inputs.repository }}:${{ inputs.build-tag }}" >> $GITHUB_OUTPUT
+        echo "image_name=${{ inputs.registry-alias }}/${{ inputs.repository }}:${BUILD_TAG}" >> $GITHUB_OUTPUT
 
